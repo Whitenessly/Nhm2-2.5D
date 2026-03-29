@@ -1,0 +1,168 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{vietnam}
+\usepackage{amsmath, amssymb, graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{booktabs}
+
+% Cấu hình header & footer
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+% Cấu hình màu cho code
+\definecolor{codegray}{gray}{0.9}
+\lstset{
+	backgroundcolor = \color{codegray},
+	basicstyle = \ttfamily\footnotesize,
+	breaklines = true,
+	frame = single,
+	numbers = left,
+	numbersep = 5pt,
+	numberstyle = \tiny\color{gray},
+	keywordstyle = \color{blue},
+	commentstyle = \color{green},
+	stringstyle = \color{red}
+}
+
+\begin{document}
+
+\title{So sánh giữa các thuật toán tìm kiếm và \\
+lấy mẫu trên địa hình 2.5D.}
+\author{Đức Anh \\ Nhóm 2}
+\maketitle
+
+\section{Introduction}
+
+Điều hướng tự động ngoài trời trên địa hình gồ ghề (đồi núi, sườn dốc) đòi hỏi sự tối ưu khắt khe giữa tính an toàn và chi phí tính toán. Hiện nay, dùng bản đồ 2D cho tốc độ xử lý nhanh nhưng lại "mù" độ dốc, dễ khiến robot lật ngửa. Trong khi đó, bản đồ đám mây điểm 3D hay 2.5D phản ánh địa hình xuất sắc nhưng lại tốn dung lượng xử lý khổng lồ, đồng thời dễ bị phân tâm tính toán bởi các vật chứa khoảng không vô hại (như tán cây lơ lửng, gầm cầu).
+
+Để giải quyết triệt để, "Bản đồ Lai" (Hybrid Map) kết hợp sức mạnh của 2D và 2.5D đã ra đời. Báo cáo này đi sâu vào phân tích và so sánh ưu điểm của hai trường phái quy hoạch quỹ đạo hàng đầu hoạt động trên cấu trúc đồ thị địa hình này: Phương pháp tìm kiếm nhúng động học (đại diện là \textbf{T-Hybrid A*}) và Phương pháp lấy mẫu ngẫu nhiên không gian (đại diện là \textbf{RRT*}).
+
+\section{Literature Review}
+
+\subsection{T-Hybrid A* (2023)}
+
+\textbf{T-Hybrid A*} do nhóm Jiayang Liu đề xuất năm 2023 \cite{liu2023hybridmapbasedpathplanning} là thuật toán A* được tinh chỉnh để giải bài toán thăng bằng động học trên Bản đồ Lai 2D+2.5D. Quá trình hoạt động được chia lưới toán học qua 3 khâu chi tiết:
+
+\subsubsection{Khâu 1: Lọc dữ liệu qua Không gian lưới động}
+Đầu tiên, thuật toán tạo một hộp bao quanh robot để loại bỏ các điểm Lidar nằm quá cao (không thể va chạm). Kích thước thiết lập như sau:
+\begin{equation}
+    G_l = G_w = \sqrt{R_l^2 + R_w^2}
+\end{equation}
+\begin{equation}
+    G_h = G_l \tan \rho_{max}
+\end{equation}
+
+\noindent\textbf{- Ý nghĩa các biến số:}
+\begin{itemize}
+    \item $R_l, R_w$ [mét]: Chiều dài và chiều rộng vật lý thực tế của thân mặt robot.
+    \item $\rho_{max}$[độ/radian]: Giới hạn góc biên dốc lớn nhất đặc thù mà động cơ phần cứng robot có sức bò lên được.
+    \item $G_l, G_w, G_h$ [mét]: Định lượng chiều Dài, Rộng và đường Cao giả định của lưới vùng quét không gian hộp 3 chiều.
+\end{itemize}
+
+\noindent\textbf{- Cách sử dụng hệ thống:} Căn cứ thiết kế của xe $(R_l, R_w, \rho_{max})$, thuật toán tính ra một khung rà quét $(G_h)$. Nếu tia Lidar bắn điểm ảnh lọt ra trên cao trần $G_h$ (ví dụ: cành cây xòe ra), máy tính sẽ tự động xóa ngay các điểm đó khỏi bộ nhớ RAM để tiết kiệm thời gian xử lý các chướng ngại vô thực.
+
+\subsubsection{Khâu 2: Đánh giá địa hình và chia Bản đồ Lai}
+Sử dụng phân tích thành phần chính (PCA) lên tập quét đất vừa cắt được để tìm mặt cắt phương pháp tuyến góc nghiêng:
+\begin{equation}
+    \tilde{p} = \frac{1}{N} \sum_{k=1}^{N} p_k \quad;\quad C = \sum_{k=1}^{N} (p_k - \tilde{p})(p_k - \tilde{p})^T
+\end{equation}
+
+Tách mức độ gồ ghề từ ổ gà/hốc đá tạo ra hệ số an toàn tĩnh $\tau$:
+\begin{equation}
+    h = \max_{i=1..n} (d_i) - \min_{j=1..n} (d_j)
+\end{equation}
+\begin{equation}
+    r_{sum} = \sum_{k=1}^n |d_k| \quad ; \quad
+    \tau = 1 - W_r \frac{r_{sum}}{r_{max}} - W_\rho \frac{\rho}{\rho_{max}}
+\end{equation}
+
+\noindent\textbf{- Ý nghĩa các biến số:}
+\begin{itemize}
+    \item $p_k, \tilde{p}, C$: Tọa độ không gian $(x,y,z)$ các hạt điểm, rốn điểm, và phân rã ma trận phương sai tạo góc $\rho$.
+    \item $h, d$ [mét]: Thông số độ lún của mép đất/khoảng cách dội phản xạ vào gầm xe.
+    \item $W_r, W_\rho$: Hệ số trọng số phụ thuộc vào thuật toán để cân nhắc tỷ lệ gồ dốc.
+    \item $\tau$[Thang điểm 0 - 1]: Chỉ số ma sát phẳng của dải địa hình.
+\end{itemize}
+
+\noindent\textbf{- Cách sử dụng hệ thống:} Máy dùng bộ phương trình (3) truy ra đất đang nghiêng độ $\rho$. Công thức (4) bóc chênh lệch rãnh $h$. Nếu $h$ lớn chạm gầm $\to$ Điểm này khóa tô đỏ thả vào \textbf{Bản đồ 2D (cấm đi tuyệt đối)}. Nếu dốc $h$ nhẵn trơn, tính nốt độ gồ $\tau$ theo pt (5) và gộp vào \textbf{Bản đồ 2.5D}. Tới đây, chiếc MAP rỗng của robot đã được trải màu mức độ cảnh báo!
+
+\subsubsection{Khâu 3: Bộ định đường T-Hybrid A* ngăn ngừa lật xe}
+Hàm A* kết hợp việc bẻ vào dốc tại góc thực tế sẽ gây lật/an toàn ra sao trước khi vạch đường đi tới:
+\begin{equation}
+    \tilde{\tau} = 1 - w_r \frac{r_{sum}}{r_{max}} - w_{\theta x} \frac{|\theta_x|}{\theta_{xmax}} - w_{\theta y} \max \left( \frac{\theta_y}{\theta_{ymin}}, \frac{\theta_y}{\theta_{ymax}} \right)
+\end{equation}
+\begin{equation}
+f(s_{i+1}) = 
+\begin{cases} 
+\infty & \text{khi } d_o = 0 \text{ hoặc } \tilde{\tau} = 0 \\
+f(s_i) + k_t t_{i+1} + k_\tau \tilde{\tau} & \text{còn lại (hợp lệ đi tiếp)}
+\end{cases}
+\end{equation}
+
+\noindent\textbf{- Ý nghĩa các đại lượng thuật toán:}
+\begin{itemize}
+    \item $\theta_x, \theta_y$ [độ]: Hệ số đo góc chệch theo động học của Roll (nghiêng ngang thân) và Pitch (chúi/chồm bốc đầu xe).
+    \item $\tilde{\tau}$: Tổng hợp khả năng đánh giá đường tiếp diễn với góc cua cụ thể. Tỷ lệ tỷ nghịch tới ngưỡng báo động hỏng góc rẽ.
+    \item $f(s_{i+1}), d_o$: Hệ điểm thưởng phạt định tuyến tiếp bước i+1 và khoảng cách an toàn so chướng ngại vật cứng $2D$.
+\end{itemize}
+
+\noindent\textbf{- Cách sử dụng hệ thống:} Khi vẽ tia tìm đường tiếp theo, thuật toán nội suy điểm giả lập vào bộ Pitch/Roll. Xe lên dốc sẽ ít rủi ro hơn đâm gầm xuống đèo (hệ giá báo $\theta_{ymin}, \theta_{ymax}$). Nếu đi vào tư thế tạt ngang sườn mạn núi khiến xe kênh lật, điểm độ nương gầm $\tilde{\tau} = 0$, hoặc đâm trúng góc đỏ của đá $d_o = 0$ $\to$ Hệ định dạng giá đắt $\infty$ và cắt ngay cung đường A* rủi ro này. Vòng lặp chỉ bảo toàn và cộng dồn điểm thấp nhẹn để in ra dải bánh xe êm xóc nhất.
+
+\subsection{Các phương pháp Lấy mẫu ngẫu nhiên (Sampling-based: RRT/RRT*)}
+
+Trái ngược với Graph-search (như A*), các thuật toán lấy mẫu không gian như RRT (Rapidly-exploring Random Tree) và biến thể RRT* không bị gò bó bởi độ phân giải của lưới bản đồ. Chúng phát triển quỹ đạo bằng cách liên tục "vươn cành" tới các điểm lấy mẫu ngẫu nhiên. Nhờ cơ chế "kết nối lại" (rewiring) các nhánh lân cận có chi phí thấp nhất, RRT* sở hữu tốc độ xử lý nhạy bén và duy trì tính tối ưu ngay cả trong các môi trường đa chiều phức tạp.
+
+Tuy nhiên, RRT nguyên thủy chỉ hiểu không gian theo dạng nhị phân (chỗ trống/bị chặn) nên không thể áp dụng cho các sườn dốc thực tế. Để đưa thuật toán này ra môi trường đồi núi gồ ghề, nhóm tác giả Meng Li (2018) \cite{li2018pathplanning} đã đề xuất thuật toán RRT Cải tiến (Improved RRT). Trọng tâm cải tiến là gạt bỏ bộ rà va chạm cơ bản, thay bằng hệ thống \textbf{Tiêu chuẩn Chấp nhận Nút 3D (Acceptance Criteria)} ràng buộc chặt chẽ với động học phần cứng:
+
+\subsubsection{Khâu 1: Các ràng buộc vật lý loại bỏ nút chết}
+Khi một điểm ngẫu nhiên mới ($q_{new}$) được vẽ ra, trước khi kết nối nhánh, khoảng cách và độ cao của nó phải thỏa mãn bán kính quay xe và góc dốc của robot:
+\begin{equation}
+    r_i \geq r_{min} \quad ; \quad 
+    \frac{|z_{k+1} - z_k|}{|l_k|} \leq \tan\theta_{max}
+\end{equation}
+
+\noindent\textbf{- Ý nghĩa và Vai trò các biến số:}
+\begin{itemize}
+    \item $r_i$ và $r_{min}$: Bán kính vòng cua đang tạo ra và Khả năng rẽ góc hẹp nhất của robot. \textit{(Vai trò: Đảm bảo xe không bị ép vào tình huống rẽ bẻ ngoặt quá cứng gây trượt lết bánh tại mạn dốc)}.
+    \item $|z_{k+1} - z_k|$ và $|l_k|$: Mức chênh lệch độ cao theo trục Z và độ dài thực tế của nhánh bước đi.
+    \item $\theta_{max}$: Biên hạn chót về góc chúi mũi xe (Pitch) cho phép. \textit{(Vai trò: Công thức này chuyển hóa khoảng cách xéo không gian thành hàm giới hạn ngóc cản. Nếu dốc quá gắt vượt tang $\theta_{max}$, điểm $q_{new}$ bị vứt để tái lấy mẫu)}.
+\end{itemize}
+
+\subsubsection{Khâu 2: Hàm biến thiên Xác suất ưu tiên Vùng trũng}
+Nếu chỉ cấm điểm cao vượt ngưỡng, thuật toán sẽ dễ có nguy cơ chững lại (Standstill), đi lòng vòng trên vách đá. Tác giả khắc phục bằng một hàm Xác suất đánh giá:
+\begin{equation}
+    p = 
+    \begin{cases} 
+      1 & , h(q_{new}) < h(q_{near}) \\
+      1 - \frac{h(q_{new}) - h(q_{near})}{h(q_{max}) - h(q_{near})} & , \text{các vị trí thấp hơn ngọn dốc} \\
+      0 & , h(q_{new}) \geq h(q_{max}) \text{ (Thất bại)}
+    \end{cases}
+\end{equation}
+
+\noindent\textbf{- Cách hệ thống sử dụng:} Ở đây $h()$ đại diện cho cao độ thực tế. Nếu rễ cây lan xuống đồi ($q_{new} < q_{near}$), độ khó đi giảm xuống nên gán ngay bạo lực an toàn $p=1$ để hối thúc robot đi theo con đường dốc thoai thoải dần xuống nếp thung lũng (valley). Nếu nó đâm lên đỉnh cao, xác suất đồng ý kết nối vào cây sẽ bị giảm thụt lùi dần về ngưỡng $0$ nhằm ngăn xe trèo ngông lên mỏm đồi có sức cản lớn.
+
+\subsubsection{Khâu 3: Thuật toán mồi Đích động lực ($p_g$)}
+Để RRT không bị ném lan man quá số lần tính toán, tác giả còn thêm 1 biến tỷ lệ rơi điểm nhắm đích (dynamic $p_g$ value):
+\begin{equation}
+    p_g = p_{gmin} + (p_{gmax} - p_{gmin}) * \frac{N_{rmax} - N_r}{N_r}
+\end{equation}
+
+\noindent\textbf{- Cách hệ thống sử dụng:}
+Toán hạng này giúp điều chỉnh tốc độ chạy ra đường dẫn của RRT. Nhờ biến tỷ lệ lùi theo tỷ số $(1/N_r)$ với $N_r$ là số mẫu ngẫu nhiên đã phóng ra thị giác mà không tìm được rễ, thuật toán hiểu là "Robot chui vào phòng kín góc khuất". Tức tốc nó sẽ giảm tỷ lệ bắn điểm $G$ trực diện mục tiêu xuống, ép random vào rốn vùng trống để tự động dò vách trồi ra, giúp rút ngắn thời gian lũng đoạn hệ thống.
+
+\subsection{Benchmarking Platform}
+
+content ....
+
+\section{Experimental Results}
+
+
+% Mọi mục trích dẫn gọi ở đây
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}
