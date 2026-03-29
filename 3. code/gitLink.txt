@@ -1,0 +1,7 @@
+1. T-Hybid A*
+https://github.com/nubot-nudt/T-Hybrid-planner
+2. Motion planning and Navigation of AGV/AMR：ROS planner plugin implementation of 
+A*, JPS, D*, LPA*, D* Lite, Theta*, RRT, RRT*, RRT-Connect, Informed RRT*, ACO, PSO, Voronoi, PID, LQR, MPC, DWA, APF, Pure Pursuit etc.
+https://github.com/ai-winter/ros_motion_planning.git
+3. Benchmark platform
+https://github.com/masafumiendo/benchnav
