@@ -6,7 +6,7 @@
 \usepackage{fancyhdr}
 \usepackage{url}
 \usepackage{booktabs}
-
+\usepackage{listings}
 % Cấu hình header & footer
 \pagestyle{fancy}
 \fancyhf{}
@@ -26,6 +26,16 @@
 	keywordstyle = \color{blue},
 	commentstyle = \color{green},
 	stringstyle = \color{red}
+}
+
+% Cấu hình để trình bày file log đẹp hơn
+\lstset{
+    basicstyle=\small\ttfamily,
+    columns=flexible,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    captionpos=b
 }
 
 \begin{document}
@@ -155,6 +165,10 @@ Nếu chỉ cấm điểm cao vượt ngưỡng, thuật toán sẽ dễ có ngu
 Toán hạng này giúp điều chỉnh tốc độ chạy ra đường dẫn của RRT. Nhờ biến tỷ lệ lùi theo tỷ số $(1/N_r)$ với $N_r$ là số mẫu ngẫu nhiên đã phóng ra thị giác mà không tìm được rễ, thuật toán hiểu là "Robot chui vào phòng kín góc khuất". Tức tốc nó sẽ giảm tỷ lệ bắn điểm $G$ trực diện mục tiêu xuống, ép random vào rốn vùng trống để tự động dò vách trồi ra, giúp rút ngắn thời gian lũng đoạn hệ thống.
 
 \section{Experimental Results}
+
+\subsection{Task 2.1: T-Hybrid A*}
+
+Xem ở 4.logs/Task2.1, do hiện tại em insert đang bị lỗi
 
 % Mọi mục trích dẫn gọi ở đây
 \bibliographystyle{IEEEtran}
