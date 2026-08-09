@@ -1,0 +1,22 @@
+\begin{table}[htbp]
+\centering
+\caption{Bảng so sánh hiệu năng thực nghiệm các thuật toán lập kế hoạch đường đi trên 2 bản đồ địa hình 2.5D khác nhau (\texttt{000\_000} và \texttt{000\_001}) trên nền tảng BenchNav.}
+\label{tab:benchnav_results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Bản đồ} & \textbf{Thuật toán (Algorithm)} & \textbf{Trạng thái} & \textbf{Thời gian (s)} & \textbf{Độ dài 3D (m)} & \textbf{Độ lệch Roll ($^\circ$)} & \textbf{Chi phí An toàn} \\
+\midrule
+& Baseline 2D A* & Thành công & 0.044 & 16.46 & 8.97 & 14.00 \\
+Map 1 & Baseline 2D RRT* & Thành công & 0.398 & 19.45 & 10.62 & 8.73 \\
+(\texttt{000\_000}) & \textbf{T-Hybrid A* (Task 2.1)} & Thành công & \textbf{0.037} & 17.53 & 10.13 & 14.19 \\
+& \textbf{2.5D RRT* (Task 2.2)} & Thành công & 7.532 & \textbf{14.92} & \textbf{8.42} & \textbf{3.31} \\
+\midrule
+& Baseline 2D A* & Thất bại & -- & -- & -- & -- \\
+Map 2 & Baseline 2D RRT* & Thành công & \textbf{0.304} & \textbf{18.53} & 8.77 & 9.18 \\
+(\texttt{000\_001}) & \textbf{T-Hybrid A* (Task 2.1)} & Thành công & 4.219 & 21.09 & \textbf{5.39} & 7.16 \\
+& \textbf{2.5D RRT* (Task 2.2)} & Thành công & 3.845 & 19.59 & 6.56 & \textbf{4.33} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
