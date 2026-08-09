@@ -21,18 +21,13 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{liu2023hybridmapbasedpathplanning}
+\bibitem{202511.1805}
 \BIBentryALTinterwordspacing
-J.~Liu, X.~Chen, J.~Xiao, S.~Lin, Z.~Zheng, and H.~Lu, ``Hybrid map-based path
-  planning for robot navigation in unstructured environments,'' 2023. [Online].
-  Available: \url{https://arxiv.org/abs/2303.05304}
+J.~Wei, Y.~Gu, R.~Zhang, W.~Zhu, S.~Wu, Y.~Wang, N.~Cheong, Z.~Wang, S.-K. Im,
+  and X.~Yang, ``Ahrrt: An enhanced rapidly-exploring random tree algorithm
+  with heuristic search for uav urban path planning,'' \emph{Preprints},
+  November 2025. [Online]. Available:
+  \url{https://doi.org/10.20944/preprints202511.1805.v1}
 \BIBentrySTDinterwordspacing
-
-\bibitem{li2018pathplanning}
-M.~Li, Q.~Sun, Q.~Song, Z.~Wang, and Y.~Li, ``Path planning of mobile robot
-  based on rrt in rugged terrain,'' in \emph{Proceedings of the 2nd
-  International Conference on Computer Science and Application Engineering
-  (CSAE '18)}.\hskip 1em plus 0.5em minus 0.4em\relax Association for Computing
-  Machinery, 2018, pp. 1--6.
 
 \end{thebibliography}

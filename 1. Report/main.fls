@@ -118,7 +118,6 @@ INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr17.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnbx12.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnbx12.tfm
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnbx12.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr6.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi12.tfm
@@ -136,12 +135,17 @@ INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnbx12.tfm
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr8.tfm
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr6.tfm
 OUTPUT main.pdf
 INPUT C:\Users\Wsly\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm1200.tfm
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr8.tfm
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr6.tfm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnti12.tfm
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmtt.fd
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmtt.fd
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmtt.fd
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vntt12.tfm
 INPUT .\main.bbl
 INPUT .\main.bbl
 INPUT main.bbl
@@ -152,8 +156,6 @@ INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
@@ -162,8 +164,6 @@ INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
-INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnbx12.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnbx12.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnr12.pfb
@@ -172,3 +172,5 @@ INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnr17.pf
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnr17.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnti12.pfb
 INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vnti12.pfb
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vntt12.pfb
+INPUT C:\Users\Wsly\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\vnr\vntt12.pfb
