@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 from map_utils.map_loader import MapLoader
 from map_utils.hybrid_map import HybridMap
+from map_utils.point_picker import select_start_goal
 from planners.rrt_star_2_5d import RRTStar25D
 from benchnav.metrics import PathEvaluator
 
@@ -23,14 +24,12 @@ def main():
     X, Y, Z, res = loader.load_map(filepath)
     hmap = HybridMap(X, Y, Z, resolution=res)
 
-    # Tự động tính toán điểm Start (góc dưới trái) và Goal (góc trên phải) phù hợp kích thước map
-    start_pose = (hmap.width * 0.1, hmap.height * 0.1, 0.0)
-    goal_pose = (hmap.width * 0.85, hmap.height * 0.85, 0.0)
+    # 2. Chọn vị trí Start & Goal bằng click trỏ chuột trên popup (hoặc nhập tọa độ)
+    start_pose, goal_pose = select_start_goal(hmap, map_name)
 
     print(f"Executing 2.5D RRT* search on '{map_name}' from {start_pose[:2]} to {goal_pose[:2]}...")
+
     planner = RRTStar25D(hmap, max_iterations=1200)
-
-
 
     t0 = time.time()
     path, success = planner.plan(start_pose, goal_pose)
@@ -40,7 +39,7 @@ def main():
     metrics["map_name"] = map_name
     metrics["algorithm"] = "2.5D RRT*"
 
-    # 2. In kết quả thực nghiệm
+    # 3. In kết quả thực nghiệm
     print("\n==========================================================================")
     print(f" THÀNH CÔNG: KẾT QUẢ THỰC NGHIỆM 2.5D RRT* (Map: {map_name})")
     print("==========================================================================")
@@ -51,7 +50,7 @@ def main():
     print(f" - Độ lệch chuẩn Pitch:   {metrics['std_pitch_deg']:.2f}° (Max: {metrics['max_pitch_deg']:.2f}°)")
     print(f" - Traversability (tau):  {metrics['mean_traversability']:.3f}")
 
-    # 3. Lưu kết quả JSON & Ảnh minh họa đường đi vào 4. logs
+    # 4. Lưu kết quả JSON & Ảnh minh họa đường đi vào 4. logs (Legend ngoài khung hình)
     log_dir = "/home/wsly/Nhm2-2.5D/4. logs"
     os.makedirs(log_dir, exist_ok=True)
 
@@ -60,7 +59,7 @@ def main():
         json.dump(metrics, f, indent=2)
 
     img_path = os.path.join(log_dir, f"25d_rrt_{map_name}.png")
-    fig = plt.figure(figsize=(14, 6))
+    fig = plt.figure(figsize=(16, 6))
 
     # Đồ thị 3D Map và đường đi
     ax1 = fig.add_subplot(1, 2, 1, projection='3d')
@@ -72,7 +71,6 @@ def main():
     ax1.scatter([start_pose[0]], [start_pose[1]], [hmap.get_elevation(start_pose[0], start_pose[1])], color='green', s=120, label='Start')
     ax1.scatter([goal_pose[0]], [goal_pose[1]], [hmap.get_elevation(goal_pose[0], goal_pose[1])], color='gold', marker='*', s=220, label='Goal')
     ax1.set_title(f'2.5D RRT* 3D Trajectory ({map_name})', fontsize=12, fontweight='bold')
-    ax1.legend()
 
     # Đồ thị 2D Traversability và đường đi
     ax2 = fig.add_subplot(1, 2, 2)
@@ -85,10 +83,13 @@ def main():
     ax2.plot(start_pose[0], start_pose[1], 'go', markersize=10, label='Start')
     ax2.plot(goal_pose[0], goal_pose[1], 'y*', markersize=15, label='Goal')
     ax2.set_title(f'2D Map & Traversability ({map_name})', fontsize=12, fontweight='bold')
-    ax2.legend()
+
+    # ĐẶT CHÚ THÍCH (LEGEND) NGOÀI KHUNG BẢN ĐỒ
+    handles, labels = ax2.get_legend_handles_labels()
+    ax2.legend(handles, labels, bbox_to_anchor=(1.28, 1.0), loc='upper left', borderaxespad=0., fontsize=9.5, frameon=True)
 
     plt.tight_layout()
-    plt.savefig(img_path, dpi=300)
+    plt.savefig(img_path, dpi=300, bbox_inches='tight')
     plt.close()
 
     print(f"\n[OK] Đã lưu log JSON vào: {json_path}")
