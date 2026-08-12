@@ -51,22 +51,20 @@ def interactive_menu(map_selection=None, algo_selection=None):
     print(f">> Selected Map: '{selected_map_name}'")
 
     print("\n--- STEP 2: Select Algorithm / Mode ---")
-    print("  [1] T-Hybrid A* (Task 2.1 - Liu et al., 2023)")
-    print("  [2] 2.5D RRT* (Task 2.2 - Steinbauer & Koczka, 2025)")
-    print("  [3] Baseline 2D A*")
-    print("  [4] Baseline 2D RRT*")
-    print("  [5] BenchNav Comparative Analysis (Compare All Algorithms)")
+    print("  [1] T-Hybrid A*")
+    print("  [2] 2.5D RRT*")
+    print("  [3] BenchNav Comparative Analysis (T-Hybrid A* vs 2.5D RRT*)")
 
-    selected_algo_idx = 5
-    if algo_selection is not None and 1 <= algo_selection <= 5:
+    selected_algo_idx = 3
+    if algo_selection is not None and 1 <= algo_selection <= 3:
         selected_algo_idx = algo_selection
     else:
         try:
-            choice_str = input("\nSelect algorithm number [1-5] (default 5): ").strip()
-            if choice_str.isdigit() and 1 <= int(choice_str) <= 5:
+            choice_str = input("\nSelect algorithm number [1-3] (default 3): ").strip()
+            if choice_str.isdigit() and 1 <= int(choice_str) <= 3:
                 selected_algo_idx = int(choice_str)
         except (EOFError, KeyboardInterrupt):
-            selected_algo_idx = 5
+            selected_algo_idx = 3
 
     print(f"\n>> Executing Mode [{selected_algo_idx}] on Map: '{selected_map_name}'...\n")
 
@@ -74,7 +72,7 @@ def interactive_menu(map_selection=None, algo_selection=None):
         run_thybrid_standalone(selected_map_name)
     elif selected_algo_idx == 2:
         run_25d_rrt_standalone(selected_map_name)
-    elif selected_algo_idx in [3, 4, 5]:
+    elif selected_algo_idx == 3:
         run_benchnav_map(selected_map_name, num_runs=1)
 
 if __name__ == "__main__":

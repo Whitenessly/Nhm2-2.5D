@@ -40,11 +40,11 @@ def visualize_comparison(preset_name="steep_ridge", save_path="/home/wsly/Nhm2-2
 
     if path_thybrid:
         pts = np.array(path_thybrid)
-        ax1.plot(pts[:, 0], pts[:, 1], pts[:, 2] + 0.1, 'r-', linewidth=3, label='T-Hybrid A* (Liu 2023)')
+        ax1.plot(pts[:, 0], pts[:, 1], pts[:, 2] + 0.1, 'r-', linewidth=3, label='T-Hybrid A*')
 
     if path_rrt:
         pts = np.array(path_rrt)
-        ax1.plot(pts[:, 0], pts[:, 1], pts[:, 2] + 0.1, 'b--', linewidth=3, label='2.5D RRT* (Steinbauer 2025)')
+        ax1.plot(pts[:, 0], pts[:, 1], pts[:, 2] + 0.1, 'b--', linewidth=3, label='2.5D RRT*')
 
     ax1.scatter([start_pose[0]], [start_pose[1]], [hmap.get_elevation(start_pose[0], start_pose[1])],
                 color='green', s=100, label='Start')

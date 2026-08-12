@@ -46,10 +46,8 @@ class BenchNavRunner:
             goal_pose = (43.0, 43.0, 0.0)
 
             planners = {
-                "Baseline 2D A*": BaselineAStar(hmap),
-                "Baseline 2D RRT*": BaselineRRTStar(hmap, max_iterations=1200),
-                "T-Hybrid A* (Task 2.1)": THybridAStar(hmap, step_size=0.6, max_iterations=2500),
-                "2.5D RRT* (Task 2.2)": RRTStar25D(hmap, max_iterations=1200)
+                "T-Hybrid A*": THybridAStar(hmap, step_size=0.6, max_iterations=2500),
+                "2.5D RRT*": RRTStar25D(hmap, max_iterations=1200)
             }
 
             for name, planner in planners.items():

@@ -15,9 +15,9 @@ def main():
     print("\n==========================================================================")
     print("      2.5D PATH PLANNING & BENCHNAV SUITE (NHÓM 2)                       ")
     print("==========================================================================")
-    print("  [1] Chạy độc lập Thuật toán T-Hybrid A* (Task 2.1 - Liu et al., 2023)")
-    print("  [2] Chạy độc lập Thuật toán 2.5D RRT* (Task 2.2 - Steinbauer et al., 2025)")
-    print("  [3] Chạy chương trình so sánh BenchNav (Task 2.3 - BenchNav Comparison)")
+    print("  [1] Chạy độc lập Thuật toán T-Hybrid A*")
+    print("  [2] Chạy độc lập Thuật toán 2.5D RRT*")
+    print("  [3] Chạy chương trình so sánh BenchNav (T-Hybrid A* vs 2.5D RRT*)")
 
     selected_mode = 3
     if len(sys.argv) > 1 and sys.argv[1].isdigit():

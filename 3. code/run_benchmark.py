@@ -32,10 +32,8 @@ def main():
     print(f"Executing BenchNav benchmark on '{map_name}' from {start_pose[:2]} to {goal_pose[:2]}...\n")
 
     planners = {
-        "Baseline 2D A*": BaselineAStar(hmap),
-        "Baseline 2D RRT*": BaselineRRTStar(hmap, max_iterations=1000),
-        "T-Hybrid A* (Task 2.1)": THybridAStar(hmap, max_iterations=4000),
-        "2.5D RRT* (Task 2.2)": RRTStar25D(hmap, max_iterations=1200)
+        "T-Hybrid A*": THybridAStar(hmap, max_iterations=4000),
+        "2.5D RRT*": RRTStar25D(hmap, max_iterations=1200)
     }
 
     results = []
@@ -82,8 +80,8 @@ def main():
     surf = ax1.plot_surface(X, Y, Z, cmap='terrain', alpha=0.6, edgecolor='none')
     fig.colorbar(surf, ax=ax1, shrink=0.5, aspect=10, label='Độ cao Z (m)')
 
-    colors = {'Baseline 2D A*': 'gray', 'Baseline 2D RRT*': 'orange', 'T-Hybrid A* (Task 2.1)': 'red', '2.5D RRT* (Task 2.2)': 'blue'}
-    styles = {'Baseline 2D A*': ':', 'Baseline 2D RRT*': '-.', 'T-Hybrid A* (Task 2.1)': '-', '2.5D RRT* (Task 2.2)': '--'}
+    colors = {'T-Hybrid A*': 'red', '2.5D RRT*': 'blue'}
+    styles = {'T-Hybrid A*': '-', '2.5D RRT*': '--'}
 
     for name, path in paths_dict.items():
         if path:
