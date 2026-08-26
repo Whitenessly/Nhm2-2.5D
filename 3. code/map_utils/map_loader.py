@@ -26,6 +26,13 @@ class MapLoader:
             map_list.append((map_name, f))
         return map_list
 
+    def get_map_path(self, map_name):
+        """Returns the full filepath for a map name or None if not found."""
+        for mname, path in self.list_available_maps():
+            if mname == map_name:
+                return path
+        return None
+
     def select_map_interactive(self):
         """
         Scans map_data folder, prints numbered list of available raw maps,

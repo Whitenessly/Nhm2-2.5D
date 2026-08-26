@@ -131,8 +131,12 @@ class THybridAStar:
         sx, sy, syaw = start_pose
         gx, gy, gyaw = goal_pose
 
+        self.map.clear_around_point(sx, sy, radius=1.0)
+        self.map.clear_around_point(gx, gy, radius=1.0)
+
         # Precompute 2D Dijkstra distance heuristic map for obstacle guidance
         self.dist_map = self._precompute_2d_heuristic(gx, gy)
+
 
         start_node = THybridAStarNode(sx, sy, syaw, g=0.0, h=self._heuristic(sx, sy, syaw, gx, gy, gyaw))
 

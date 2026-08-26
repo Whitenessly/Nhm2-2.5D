@@ -63,22 +63,26 @@ class HybridMap:
         self.occupancy_2d[self.slope > self.rho_max] = True
         self.occupancy_2d[self.roughness > self.h_max] = True
 
-        # Clear 1.2m radius around start (5, 5) and goal (43, 43) to prevent start/goal lethal blockage
-        for target_pt in [(5.0, 5.0), (43.0, 43.0)]:
-            g_target = self.world_to_grid(target_pt[0], target_pt[1])
-            if g_target:
-                tx, ty = g_target
-                r_cells = int(round(1.2 / self.resolution))
-                y_min, y_max = max(0, ty - r_cells), min(self.ny, ty + r_cells + 1)
-                x_min, x_max = max(0, tx - r_cells), min(self.nx, tx + r_cells + 1)
-                self.occupancy_2d[y_min:y_max, x_min:x_max] = False
-
         # Static traversability tau in [0, 1]
-
         r_norm = np.clip(self.roughness / self.rmax, 0.0, 1.0)
         rho_norm = np.clip(self.slope / self.rho_max, 0.0, 1.0)
         self.static_traversability = np.clip(1.0 - self.wr * r_norm - self.w_rho * rho_norm, 0.0, 1.0)
         self.static_traversability[self.occupancy_2d] = 0.0
+
+    def clear_around_point(self, x, y, radius=1.2):
+        """Clears occupancy in a circle around (x, y) so start/goal poses are drivable."""
+        g = self.world_to_grid(x, y)
+        if g is not None:
+            tx, ty = g
+            r_cells = int(round(radius / self.resolution))
+            y_min, y_max = max(0, ty - r_cells), min(self.ny, ty + r_cells + 1)
+            x_min, x_max = max(0, tx - r_cells), min(self.nx, tx + r_cells + 1)
+            self.occupancy_2d[y_min:y_max, x_min:x_max] = False
+            if hasattr(self, 'static_traversability'):
+                self.static_traversability[y_min:y_max, x_min:x_max] = np.maximum(
+                    self.static_traversability[y_min:y_max, x_min:x_max], 0.7
+                )
+
 
     def world_to_grid(self, x, y):
         """Converts world (x,y) to grid indices (ix, iy). Returns None if out of bounds."""

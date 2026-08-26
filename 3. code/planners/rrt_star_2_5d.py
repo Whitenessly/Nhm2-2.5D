@@ -110,7 +110,11 @@ class RRTStar25D:
         sx, sy, syaw = start_pose
         gx, gy, gyaw = goal_pose
 
+        self.map.clear_around_point(sx, sy, radius=1.0)
+        self.map.clear_around_point(gx, gy, radius=1.0)
+
         start_node = RRTStar25DNode(sx, sy, syaw, cost=0.0)
+
 
         nodes = [start_node]
 
@@ -170,12 +174,20 @@ class RRTStar25D:
                     best_goal_node = new_node
 
         if best_goal_node is not None:
-            return self._reconstruct_path(best_goal_node), True
+            path = self._reconstruct_path(best_goal_node)
+            # Append exact goal state
+            gz = self.map.get_elevation(gx, gy)
+            roll_g, pitch_g, _ = self.map.project_footprint_3point(gx, gy, gyaw)
+            tau_g = self.map.compute_dynamic_traversability(gx, gy, gyaw)
+            path.append((gx, gy, gz, gyaw, roll_g, pitch_g, tau_g))
+            return path, True
 
         # If goal not directly reached, find node closest to goal
         dists = [np.hypot(gx - n.x, gy - n.y) for n in nodes]
         closest_node = nodes[int(np.argmin(dists))]
-        return self._reconstruct_path(closest_node), True
+        success = min(dists) <= goal_tolerance
+        return self._reconstruct_path(closest_node), success
+
 
 
 

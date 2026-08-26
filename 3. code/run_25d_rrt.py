@@ -12,20 +12,18 @@ from map_utils.point_picker import select_start_goal
 from planners.rrt_star_2_5d import RRTStar25D
 from benchnav.metrics import PathEvaluator
 
-def main():
-    print("==========================================================================")
-    print("      TASK 2.2: 2.5D RRT* PLANNER (Steinbauer et al., 2025) - STANDALONE  ")
-    print("==========================================================================")
-
-    # 1. Quét list map_data để người dùng chọn map
+def run_25d_rrt_standalone(map_name, start_pose=None, goal_pose=None):
+    """Executes 2.5D RRT* on the given map name."""
     loader = MapLoader()
-    map_name, filepath = loader.select_map_interactive()
+    filepath = loader.get_map_path(map_name)
+    if not filepath:
+        map_name, filepath = loader.select_map_interactive()
 
     X, Y, Z, res = loader.load_map(filepath)
     hmap = HybridMap(X, Y, Z, resolution=res)
 
-    # 2. Chọn vị trí Start & Goal bằng click trỏ chuột trên popup (hoặc nhập tọa độ)
-    start_pose, goal_pose = select_start_goal(hmap, map_name)
+    if start_pose is None or goal_pose is None:
+        start_pose, goal_pose = select_start_goal(hmap, map_name)
 
     print(f"Executing 2.5D RRT* search on '{map_name}' from {start_pose[:2]} to {goal_pose[:2]}...")
 
@@ -39,7 +37,6 @@ def main():
     metrics["map_name"] = map_name
     metrics["algorithm"] = "2.5D RRT*"
 
-    # 3. In kết quả thực nghiệm
     print("\n==========================================================================")
     print(f" THÀNH CÔNG: KẾT QUẢ THỰC NGHIỆM 2.5D RRT* (Map: {map_name})")
     print("==========================================================================")
@@ -50,7 +47,6 @@ def main():
     print(f" - Độ lệch chuẩn Pitch:   {metrics['std_pitch_deg']:.2f}° (Max: {metrics['max_pitch_deg']:.2f}°)")
     print(f" - Traversability (tau):  {metrics['mean_traversability']:.3f}")
 
-    # 4. Lưu kết quả JSON & Ảnh minh họa đường đi vào 4. logs (Legend ngoài khung hình)
     log_dir = "/home/wsly/Nhm2-2.5D/4. logs"
     os.makedirs(log_dir, exist_ok=True)
 
@@ -61,7 +57,6 @@ def main():
     img_path = os.path.join(log_dir, f"25d_rrt_{map_name}.png")
     fig = plt.figure(figsize=(16, 6))
 
-    # Đồ thị 3D Map và đường đi
     ax1 = fig.add_subplot(1, 2, 1, projection='3d')
     surf = ax1.plot_surface(X, Y, Z, cmap='terrain', alpha=0.7, edgecolor='none')
     fig.colorbar(surf, ax=ax1, shrink=0.5, aspect=10, label='Độ cao Z (m)')
@@ -72,7 +67,6 @@ def main():
     ax1.scatter([goal_pose[0]], [goal_pose[1]], [hmap.get_elevation(goal_pose[0], goal_pose[1])], color='gold', marker='*', s=220, label='Goal')
     ax1.set_title(f'2.5D RRT* 3D Trajectory ({map_name})', fontsize=12, fontweight='bold')
 
-    # Đồ thị 2D Traversability và đường đi
     ax2 = fig.add_subplot(1, 2, 2)
     im = ax2.imshow(hmap.static_traversability, origin='lower', extent=[0, hmap.width, 0, hmap.height], cmap='RdYlGn')
     fig.colorbar(im, ax=ax2, shrink=0.75, label='Traversability tau')
@@ -84,7 +78,6 @@ def main():
     ax2.plot(goal_pose[0], goal_pose[1], 'y*', markersize=15, label='Goal')
     ax2.set_title(f'2D Map & Traversability ({map_name})', fontsize=12, fontweight='bold')
 
-    # ĐẶT CHÚ THÍCH (LEGEND) NGOÀI KHUNG BẢN ĐỒ
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels, bbox_to_anchor=(1.28, 1.0), loc='upper left', borderaxespad=0., fontsize=9.5, frameon=True)
 
@@ -94,6 +87,15 @@ def main():
 
     print(f"\n[OK] Đã lưu log JSON vào: {json_path}")
     print(f"[OK] Đã lưu ảnh đường đi vào: {img_path}")
+    return metrics
+
+def main():
+    print("==========================================================================")
+    print("      TASK 2.2: 2.5D RRT* PLANNER (Steinbauer et al., 2025) - STANDALONE  ")
+    print("==========================================================================")
+    loader = MapLoader()
+    map_name, filepath = loader.select_map_interactive()
+    run_25d_rrt_standalone(map_name)
 
 if __name__ == "__main__":
     main()

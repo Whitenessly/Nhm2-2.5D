@@ -2,18 +2,43 @@ import os
 import sys
 import numpy as np
 
+def parse_coordinate_input(input_str, default_val, point_name="Point", max_w=100.0, max_h=100.0):
+    """
+    Parses user input string into (x, y) float tuple.
+    Accepts: '10, 15', '10 15', '10.5,20.2', or empty string (falls back to default).
+    """
+    text = input_str.strip()
+    if not text:
+        print(f"  -> Dùng mặc định cho {point_name}: ({default_val[0]:.2f}, {default_val[1]:.2f})")
+        return default_val[0], default_val[1]
+
+    # Replace comma with space, then split
+    parts = text.replace(',', ' ').split()
+    if len(parts) >= 2:
+        try:
+            x = float(parts[0])
+            y = float(parts[1])
+            # Check bounds
+            x = max(0.5, min(max_w - 0.5, x))
+            y = max(0.5, min(max_h - 0.5, y))
+            print(f"  [OK] Đã nhận {point_name}: ({x:.2f}, {y:.2f})")
+            return x, y
+        except ValueError:
+            pass
+
+    print(f"  [Cảnh báo] Nhập không đúng định dạng '{input_str}'. Dùng mặc định cho {point_name}: ({default_val[0]:.2f}, {default_val[1]:.2f})")
+    return default_val[0], default_val[1]
+
 def select_start_goal(hmap, map_name="map"):
     """
-    Pops up an interactive Matplotlib GUI window allowing the user to click
-    on the 2D map to set Start (Click 1) and Goal (Click 2) positions.
-    Falls back gracefully to default poses / CLI input if GUI/DISPLAY is unavailable.
+    Prompts user to select Start and Goal coordinates with interactive CLI or GUI window.
+    Prints explicit confirmation and handles custom inputs with retry / graceful fallbacks.
     """
     has_display = bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 
     if has_display:
         try:
             import matplotlib
-            # Check if backend supports interactive GUI
             if matplotlib.get_backend().lower() not in ['agg', 'template']:
                 import matplotlib.pyplot as plt
 
@@ -29,9 +54,9 @@ def select_start_goal(hmap, map_name="map"):
                 ax.set_ylabel("Y (meters)")
                 ax.grid(True, linestyle='--', alpha=0.5)
 
-                print("\n>> POP-UP WINDOW OPENED: Click 2 points on the Map:")
-                print("   - Click 1: START Point")
-                print("   - Click 2: GOAL Point")
+                print("\n>> CỬA SỔ CHỌN ĐIỂM: Click 2 điểm trên Bản đồ:")
+                print("   - Click 1: Điểm START")
+                print("   - Click 2: Điểm GOAL")
 
                 pts = plt.ginput(2, timeout=30)
                 plt.close(fig)
@@ -42,33 +67,37 @@ def select_start_goal(hmap, map_name="map"):
                     gx, gy = max(0.5, min(hmap.width - 0.5, gx)), max(0.5, min(hmap.height - 0.5, gy))
 
                     syaw = np.arctan2(gy - sy, gx - sx)
-                    gyaw = syaw
-                    print(f">> Mouse Selected START: ({sx:.2f}, {sy:.2f}) | GOAL: ({gx:.2f}, {gy:.2f})")
-                    return (sx, sy, syaw), (gx, gy, gyaw)
-        except Exception as e:
-            print(f">> GUI Window Notice: {e}. Falling back to default selection mode...")
+                    print(f"\n[OK] Đã chọn từ chuột -> START: ({sx:.2f}, {sy:.2f}) | GOAL: ({gx:.2f}, {gy:.2f})")
+                    return (sx, sy, syaw), (gx, gy, syaw)
+        except Exception:
+            pass
 
-    # Headless / Default fallback mode
-    default_start = (hmap.width * 0.1, hmap.height * 0.1, 0.0)
-    default_goal = (hmap.width * 0.85, hmap.height * 0.85, 0.0)
+    # Terminal input mode
+    default_start = (round(hmap.width * 0.1, 2), round(hmap.height * 0.1, 2), 0.0)
+    default_goal = (round(hmap.width * 0.85, 2), round(hmap.height * 0.85, 2), 0.0)
 
     print("\n----------------------------------------------------------")
-    print(f" Start & Goal Poses for Map '{map_name}':")
+    print(f" Tọa độ mặc định cho Bản đồ '{map_name}' (Kích thước: {hmap.width:.1f}m x {hmap.height:.1f}m):")
     print(f"  - START: ({default_start[0]:.2f}, {default_start[1]:.2f})")
     print(f"  - GOAL:  ({default_goal[0]:.2f}, {default_goal[1]:.2f})")
     print("----------------------------------------------------------")
 
     try:
-        ans = input("Press ENTER to use defaults, or type 'c' for custom (x,y): ").strip().lower()
+        ans = input("Nhấn ENTER để dùng mặc định, hoặc nhập 'c' để nhập tọa độ tùy chỉnh: ").strip().lower()
         if ans == 'c':
-            s_str = input(f"Enter START x,y (e.g. {default_start[0]:.1f},{default_start[1]:.1f}): ").strip()
-            g_str = input(f"Enter GOAL x,y (e.g. {default_goal[0]:.1f},{default_goal[1]:.1f}): ").strip()
+            print("\n>> Nhập tọa độ (có thể dùng dấu phẩy hoặc dấu cách, vd: 10, 15 hoặc 10 15). Để trống = dùng mặc định:")
+            
+            s_raw = input(f"Nhập tọa độ START x,y [Mặc định: {default_start[0]}, {default_start[1]}]: ")
+            sx, sy = parse_coordinate_input(s_raw, default_start, point_name="START", max_w=hmap.width, max_h=hmap.height)
 
-            sx, sy = map(float, s_str.split(','))
-            gx, gy = map(float, g_str.split(','))
+            g_raw = input(f"Nhập tọa độ GOAL x,y  [Mặc định: {default_goal[0]}, {default_goal[1]}]: ")
+            gx, gy = parse_coordinate_input(g_raw, default_goal, point_name="GOAL", max_w=hmap.width, max_h=hmap.height)
+
             syaw = np.arctan2(gy - sy, gx - sx)
+            print(f"\n>> [XÁC NHẬN] Đã thiết lập thành công: START=({sx:.2f}, {sy:.2f}) -> GOAL=({gx:.2f}, {gy:.2f})\n")
             return (sx, sy, syaw), (gx, gy, syaw)
-    except (EOFError, KeyboardInterrupt, ValueError):
+    except (EOFError, KeyboardInterrupt):
         pass
 
+    print(f"\n>> [XÁC NHẬN] Dùng tọa độ mặc định: START=({default_start[0]:.2f}, {default_start[1]:.2f}) -> GOAL=({default_goal[0]:.2f}, {default_goal[1]:.2f})\n")
     return default_start, default_goal
