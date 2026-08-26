@@ -21,27 +21,29 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{endo2024}
-\BIBentryALTinterwordspacing
-M.~Endo, K.~Yamane, S.~Shirafuji, and J.~Ota, ``Benchnav: Simulation platform
-  for off-road navigation,'' \emph{arXiv preprint arXiv:2409.12345}, 2024.
-  [Online]. Available: \url{https://github.com/masafumiendo/benchnav}
-\BIBentrySTDinterwordspacing
-
 \bibitem{jiayangliu2023}
 \BIBentryALTinterwordspacing
 J.~Liu, Z.~Wang, Y.~Jiang, X.~Zhang, and L.~Cheng, ``Hybrid map-based path
-  planning for robot navigation in unstructured environments,'' \emph{arXiv
-  preprint arXiv:2303.05304}, 2023. [Online]. Available:
-  \url{https://arxiv.org/abs/2303.05304}
+  planning for robot navigation in unstructured environments,'' \emph{IEEE
+  Robotics and Automation Letters (RA-L)}, vol.~8, no.~5, pp. 2432--2439, 2023.
+  [Online]. Available: \url{https://arxiv.org/abs/2303.05304}
 \BIBentrySTDinterwordspacing
 
 \bibitem{geraldsteinbauer2025}
 \BIBentryALTinterwordspacing
-G.~Steinbauer-Wagner, ``Ugv path planning in 2.5d and 3d terrain
-  environments,'' Ph.D. dissertation, Graz University of Technology, 2025.
-  [Online]. Available:
+A.~Koczka and G.~Steinbauer-Wagner, ``Investigating 2.5d path-planning methods
+  for autonomous mobile robots in off-road scenarios,'' Ph.D. dissertation,
+  Graz University of Technology, 2025. [Online]. Available:
   \url{https://repository.tugraz.at/publications/marc21/9yba9-avz88/files/89290.pdf}
 \BIBentrySTDinterwordspacing
+
+\bibitem{fergusondavid2005}
+D.~Ferguson and A.~Stentz, ``Field d*: An interpolation-based path planner and
+  replanner,'' \emph{Robotics Research: The Eleventh International Symposium},
+  pp. 239--253, 2005.
+
+\bibitem{lorenzwellhausen2023}
+L.~Wellhausen and M.~Hutter, ``Artplanner: Robust legged robot navigation in
+  the field,'' \emph{Field Robotics}, vol.~3, pp. 477--500, 2023.
 
 \end{thebibliography}

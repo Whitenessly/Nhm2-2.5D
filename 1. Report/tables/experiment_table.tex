@@ -1,22 +1,24 @@
 \begin{table}[htbp]
 \centering
-\caption{Bảng so sánh hiệu năng thực nghiệm các thuật toán lập kế hoạch đường đi trên 2 bản đồ địa hình 2.5D khác nhau (\texttt{000\_000} và \texttt{000\_001}) trên nền tảng BenchNav.}
-\label{tab:benchnav_results}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llccccc}
+\caption{Bảng tổng hợp kết quả thực nghiệm 4 thuật toán quy hoạch 2.5D trên tập dữ liệu bản đồ địa hình (Logs lưu tại \texttt{4. logs/})}
+\label{tab:benchmark_results}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{llcccccc}
 \toprule
-\textbf{Bản đồ} & \textbf{Thuật toán (Algorithm)} & \textbf{Trạng thái} & \textbf{Thời gian (s)} & \textbf{Độ dài 3D (m)} & \textbf{Độ lệch Roll ($^\circ$)} & \textbf{Chi phí An toàn} \\
+\textbf{Bản đồ} & \textbf{Thuật toán} & \textbf{Thành công} & \textbf{$T_{plan}$ (s)} & \textbf{$L_{3D}$ (m)} & \textbf{$\sigma_{roll}$ ($^\circ$)} & \textbf{$\text{Max Roll}$ ($^\circ$)} & \textbf{$\bar{\tau}$} \\
 \midrule
-& Baseline 2D A* & Thành công & 0.044 & 16.46 & 8.97 & 14.00 \\
-Map 1 & Baseline 2D RRT* & Thành công & 0.398 & 19.45 & 10.62 & 8.73 \\
-(\texttt{000\_000}) & \textbf{T-Hybrid A* (Task 2.1)} & Thành công & \textbf{0.037} & 17.53 & 10.13 & 14.19 \\
-& \textbf{2.5D RRT* (Task 2.2)} & Thành công & 7.532 & \textbf{14.92} & \textbf{8.42} & \textbf{3.31} \\
+\multirow{4}{*}{\textbf{Map 000000}} 
+& T-Hybrid A* \cite{jiayangliu2023}       & \textbf{True}  & 0.642 & 40.00 & 0.00 & 0.00  & 1.000 \\
+& 2.5D RRT* \cite{geraldsteinbauer2025}    & \textbf{True}  & 1.177 & 34.94 & 0.00 & 0.00  & 1.000 \\
+& 2.5D Field D* \cite{fergusondavid2005}  & \textbf{True}  & \textbf{0.486} & 39.75 & 2.09 & 25.10 & 0.995 \\
+& 2.5D LazyPRM* \cite{lorenzwellhausen2023}& \textbf{True}  & 0.510 & 40.77 & 5.11 & 28.50 & 1.000 \\
 \midrule
-& Baseline 2D A* & Thất bại & -- & -- & -- & -- \\
-Map 2 & Baseline 2D RRT* & Thành công & \textbf{0.304} & \textbf{18.53} & 8.77 & 9.18 \\
-(\texttt{000\_001}) & \textbf{T-Hybrid A* (Task 2.1)} & Thành công & 4.219 & 21.09 & \textbf{5.39} & 7.16 \\
-& \textbf{2.5D RRT* (Task 2.2)} & Thành công & 3.845 & 19.59 & 6.56 & \textbf{4.33} \\
+\multirow{4}{*}{\textbf{Map 000001}} 
+& T-Hybrid A* \cite{jiayangliu2023}       & \textbf{True}  & 1.048 & 39.61 & 0.00 & 0.00  & 1.000 \\
+& 2.5D RRT* \cite{geraldsteinbauer2025}    & False & 0.863 & 28.16 & 0.00 & 0.00  & 1.000 \\
+& 2.5D Field D* \cite{fergusondavid2005}  & \textbf{True}  & \textbf{0.461} & 39.90 & 2.86 & 25.35 & 0.992 \\
+& 2.5D LazyPRM* \cite{lorenzwellhausen2023}& \textbf{True}  & 0.530 & 41.80 & 3.26 & 43.23 & 0.999 \\
 \bottomrule
-\end{tabular}%
+\end{tabular}
 }
 \end{table}

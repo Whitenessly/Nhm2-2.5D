@@ -6,12 +6,15 @@
 \usepackage{fancyhdr}
 \usepackage{url}
 \usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.2cm}
 
 \pagestyle{fancy}
 \fancyhf{}
 \setlength{\headheight}{15pt}
-\fancyhead[L]{Báo cáo Task 2.3: Nền tảng Đánh giá BenchNav 2.5D}
-\fancyhead[R]{Nhóm 2 - Lập kế hoạch đường đi}
+\fancyhead[L]{Báo cáo: Bản đồ Địa hình \& Quy hoạch Đường đi 2.5D}
+\fancyhead[R]{Nhóm 1}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.5pt}
 \renewcommand{\footrulewidth}{0.5pt}
@@ -33,63 +36,102 @@
 
 \begin{document}
 
-\title{Báo cáo Thực nghiệm Task 2.3: Khảo sát Nền tảng Đánh giá BenchNav So sánh Thuật toán T-Hybrid A* và 2.5D RRT* trên Địa hình 2.5D}
-\author{Đức Anh \\ Nhóm 2: Thuật toán Lập kế hoạch (Path Planning Algorithms)}
+\title{\Large \textbf{Báo cáo Thực nghiệm: Đánh giá Chất lượng Dữ liệu Bản đồ 2.5D \\ và Ứng dụng Thuật toán Quy hoạch Quỹ đạo Tự hành}}
+\author{\textbf{Nhóm 1}}
 \date{\today}
 \maketitle
 
-\section{Introduction}
+\section{Giới thiệu (Introduction)}
 
-Trong bài toán robot di động tự hành di chuyển ngoài trời (Off-Road / Field Robotics), địa hình di chuyển được biểu diễn dưới dạng bản đồ độ cao 2.5D (Heightmap $z = f(x,y)$). Việc lập kế hoạch đường đi trên địa hình 2.5D đòi hỏi thuật toán phải cân bằng giữa thời gian tính toán, chiều dài quỹ đạo 3D, độ dốc địa hình và độ ổn định tư thế chống lật xe (Rollover Stability).
-
-Mục tiêu cốt lõi của \textbf{Task 2.3} trong Nhóm 2 là ứng dụng \textbf{Nền tảng Đánh giá BenchNav} (\textit{BenchNav Simulation \& Benchmarking Platform}) \cite{endo2024} nhằm xây dựng một môi trường so sánh chuẩn hóa, công bằng tập trung vào hai thuật toán cốt lõi của Nhóm 2:
+Trong bài toán điều hướng tự hành ngoài trời (Off-Road / Unstructured Field Navigation), robot di động (UGV / Legged Robot) phải di chuyển qua các địa hình gồ ghề, sườn dốc và vách đá hiểm trở. Nhằm xây dựng một chu trình hoàn chỉnh từ khâu cảm biến, tạo lập bản đồ cho đến điều khiển quỹ đạo, \textbf{Nhóm 1} thực hiện các nhiệm vụ nghiên cứu và thực nghiệm:
 \begin{enumerate}
-    \item \textbf{T-Hybrid A* (Task 2.1) \cite{jiayangliu2023}:} Thuật toán tìm kiếm đồ thị (Graph Search) kết hợp bản đồ 2D và chi phí độ dốc 2.5D.
-    \item \textbf{2.5D RRT* (Task 2.2) \cite{geraldsteinbauer2025}:} Thuật toán dựa trên lấy mẫu (Sampling-based) thích ứng theo độ dốc và tư thế nghiêng của địa hình.
+    \item Xây dựng mô hình bản đồ độ cao số 2.5D (Digital Elevation Map - DEM, định dạng tệp \texttt{.npz}), trích xuất các trường dữ liệu thực địa: tọa độ $(X, Y)$, ma trận độ cao $Z(x,y)$, vector pháp tuyến $\vec{n}(x,y)$, góc dốc $\text{Slope}(x,y)$ và ma trận độ thuận lợi di chuyển $\tau(x,y) \in [0, 1]$.
+    \item Xây dựng bộ công cụ thực nghiệm và kiểm thử chất lượng bản đồ thông qua 4 thuật toán quy hoạch đường đi 2.5D Native:
+    \begin{itemize}
+        \item \textbf{T-Hybrid A* \cite{jiayangliu2023}:} Tìm kiếm đồ thị động học kết hợp kiểm tra góc nghiêng Roll/Pitch theo mô hình Ackermann.
+        \item \textbf{2.5D RRT* \cite{geraldsteinbauer2025}:} Lấy mẫu cây ngẫu nhiên với mô hình chiếu dấu chân 3 điểm (Footprint Projection).
+        \item \textbf{2.5D Field D* \cite{fergusondavid2005}:} Nội suy chi phí bất kỳ góc (Any-Angle) tối ưu hóa quãng đường 3D và leo dốc.
+        \item \textbf{2.5D LazyPRM* / ArtPlanner \cite{lorenzwellhausen2023}:} Xây dựng đồ thị lộ trình Roadmap trên mặt cong 2.5D với cơ chế kiểm tra va chạm lười.
+    \end{itemize}
 \end{enumerate}
 
-Nền tảng BenchNav cung cấp bộ đo lường \texttt{PathEvaluator} giúp định lượng chính xác các chỉ số: thời gian tính toán ($T_{plan}$), độ dài đường đi 3D ($L_{3D}$), độ lệch chuẩn góc lật ngang ($\sigma_{roll}$), khả năng vượt địa hình trung bình ($\bar{\tau}$), và chi phí an toàn ($C_{safety}$).
+\section{Tổng quan Lý thuyết (Literature Review)}
 
-\section{Literature Review}
+\subsection{T-Hybrid A* (Liu et al., 2023 \cite{jiayangliu2023})}
+Thuật toán T-Hybrid A* \cite{jiayangliu2023} kết hợp lưới 2D để loại bỏ vật cản cứng và tích phân mô hình xe đạp trong $SE(2)$ để sinh chuyển động mượt. Hàm chi phí tích hợp trực tiếp độ nghiêng Roll/Pitch từ vector pháp tuyến của bản đồ:
+\begin{equation}
+    G(n) = \text{dist}_{3D} + k_t \cdot |\Delta \text{steer}| + k_{\tau} \cdot (1 - \tau_{dyn})
+\end{equation}
+trong đó $\tau_{dyn}$ là độ an toàn tư thế tức thời của robot trên sườn dốc.
 
-\subsection{BenchNav: Simulation Platform for Off-Road Navigation (2024) \cite{endo2024}}
+\subsection{2.5D RRT* (Steinbauer \& Koczka, 2025 \cite{geraldsteinbauer2025})}
+Thuật toán 2.5D RRT* \cite{geraldsteinbauer2025} chiếu 3 điểm tiếp xúc gầm xe ($P_1$ phía sau, $P_2, P_3$ phía trước) lên ma trận cao độ $Z$ để tính góc nghiêng thân xe. Hàm phạt dốc được tính bằng:
+\begin{equation}
+    C_{slope}(n) = \left( \frac{w_{roll} \cdot |\text{roll}|}{N} + \frac{w_{pitch} \cdot |\text{pitch}|}{N} \right) \cdot w_{slope}
+\end{equation}
+Khi góc nghiêng vượt ngưỡng giới hạn ($\text{Roll} > \rho_{max}$ hoặc $\text{Pitch} > \rho_{max}$), trạng thái sẽ bị loại bỏ để đảm bảo chống lật xe.
 
-Nền tảng BenchNav do Endo et al. đề xuất nhằm giải quyết bài toán thiếu chuẩn hóa trong việc so sánh các thuật toán quy hoạch đường đi ngoài đường trường (Off-Road). Nền tảng tích hợp môi trường mô phỏng bản đồ độ cao elevation grid, tự động tính toán ma trận độ dốc (slope) và khả năng di chuyển (traversability $\tau \in [0,1]$). Nhờ bộ đánh giá \texttt{PathEvaluator}, BenchNav cung cấp các chỉ số đo lường toán học khách quan, giúp loại bỏ các sai lệch do môi trường thử nghiệm ad-hoc gây ra.
+\subsection{2.5D Field D* (Ferguson \& Stentz, 2005 \cite{fergusondavid2005})}
+2.5D Field D* \cite{fergusondavid2005} sử dụng phép nội suy tuyến tính chi phí dọc theo biên các ô lưới kết hợp khoảng cách hình học 3D Euclidean và gradient độ dốc $\nabla Z$, sinh ra quỹ đạo Any-Angle mượt mà, tối ưu hóa năng lượng di chuyển với thời gian phản hồi dưới $0.5$ giây.
 
-\subsection{T-Hybrid A*: Hybrid Map-Based Path Planning (2023) \cite{jiayangliu2023}}
+\subsection{2.5D LazyPRM* / ArtPlanner (Wellhausen \& Hutter, 2023 \cite{lorenzwellhausen2023})}
+ArtPlanner \cite{lorenzwellhausen2023} xây dựng Roadmap gồm các điểm mẫu phủ kín không gian bề mặt địa hình 2.5D Manifold thông qua cây không gian \texttt{cKDTree}. Thuật toán áp dụng cơ chế Lazy Validation, chỉ kiểm tra chi tiết góc nghiêng và độ dốc khi duyệt cạnh, mang lại hiệu năng cao trên diện tích lớn.
 
-Thuật toán T-Hybrid A* của Liu et al. (trọng tâm Task 2.1) là giải pháp SOTA kết hợp bản đồ lưới 2D và địa hình 2.5D. Thuật toán sử dụng ma trận occupancy 2D để nhanh chóng loại bỏ các ô vật cản cứng, đồng thời tích hợp hàm chi phí phạt độ dốc cao độ $Z$ khi mở rộng trạng thái. Phương pháp đạt độ phức tạp tính toán $O(N \log N)$, đảm bảo tốc độ đáp ứng thời gian thực cực cao cho các cỗ máy di động ngoài trời.
+\section{Thiết lập Thực nghiệm \& Tiêu chí Đánh giá}
 
-\subsection{2.5D RRT*: UGV Path Planning in 2.5D Terrain (2025) \cite{geraldsteinbauer2025}}
+Thực nghiệm được thực hiện trên các tệp bản đồ địa hình (\texttt{000000.npz} và \texttt{000001.npz}) với kích thước $40.0\text{m} \times 30.0\text{m}$, độ phân giải $0.2\text{m/cell}$. Tọa độ thử nghiệm: Điểm xuất phát $S = (8.0\text{m}, 14.0\text{m})$, Điểm đích $G = (34.0\text{m}, 25.5\text{m})$.
 
-Steinbauer et al. (trọng tâm Task 2.2) mở rộng thuật toán RRT* lên không gian bề mặt 2.5D manifold bằng cách đưa ràng buộc góc nghiêng (Roll/Pitch) vào hàm chi phí nối cây (Rewire) và tìm hàng xóm (Nearest Neighbor). Quỹ đạo sinh ra bởi 2.5D RRT* ưu tiên men theo các thung lũng an toàn, giúp UGV di chuyển êm thuận và giảm nguy cơ lật xe khi leo dốc gồ ghề.
+Bộ tiêu chí đánh giá (\textit{Evaluation Metrics}):
+\begin{itemize}
+    \item \textbf{Tỷ lệ thành công (Success):} Khả năng tìm được đường đi an toàn từ $S$ đến $G$.
+    \item \textbf{Thời gian tính toán ($T_{plan}$):} Thời gian xử lý tính bằng giây.
+    \item \textbf{Độ dài quỹ đạo 3D ($L_{3D}$):} Chiều dài đường đi thực tế trên địa hình 3D (mét).
+    \item \textbf{Độ ổn định thân xe ($\sigma_{roll}, \text{Max Roll}$):} Độ lệch chuẩn và góc lật ngang tối đa của thân xe (độ).
+    \item \textbf{Độ thuận lợi di chuyển trung bình ($\bar{\tau}$):} Giá trị trung bình của ma trận Traversability ($\bar{\tau} \in [0, 1]$).
+\end{itemize}
 
-\section{Experimental Results}
+\section{Kết quả Thực nghiệm \& Thảo luận}
 
-Thực nghiệm so sánh BenchNav được tiến hành trên 2 bản đồ địa hình 2.5D khác nhau: bản đồ \texttt{000\_000} (Map 1) và bản đồ \texttt{000\_001} (Map 2) với tọa độ xuất phát $S=(2.0, 2.0)$ và điểm đích $G=(18.0, 18.0)$.
+Toàn bộ dữ liệu thực nghiệm chi tiết được tự động trích xuất từ nhật ký kiểm thử lưu tại thư mục \texttt{4. logs/} (\texttt{all\_planners\_000000.json} và \texttt{all\_planners\_000001.json}).
 
 \input{tables/experiment_table}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/benchnav_comparison}
-    \caption{Trực quan hóa so sánh quỹ đạo 3D (trái) và bản đồ 2D Traversability (phải) của các thuật toán trên Bản đồ 1 (\texttt{000\_000}).}
-    \label{fig:map_000_000}
+    \includegraphics[width=0.95\linewidth]{figures/all_planners_000000}
+    \caption{Trực quan hóa so sánh quỹ đạo 3D (trái) và bản đồ 2D Traversability (phải) của 4 thuật toán trên Bản đồ \texttt{000000.npz}.}
+    \label{fig:map_000000}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/benchnav_map_000_001}
-    \caption{Trực quan hóa so sánh quỹ đạo 3D (trái) và bản đồ 2D Traversability (phải) của các thuật toán trên Bản đồ 2 (\texttt{000\_001}).}
-    \label{fig:map_000_001}
+    \includegraphics[width=0.95\linewidth]{figures/all_planners_000001}
+    \caption{Trực quan hóa so sánh quỹ đạo 3D (trái) và bản đồ 2D Traversability (phải) của 4 thuật toán trên Bản đồ \texttt{000001.npz}.}
+    \label{fig:map_000001}
 \end{figure}
 
-Phân tích chi tiết kết quả thực nghiệm từ dữ liệu log JSON lưu tại \texttt{4. logs/}:
+\subsection{Phân tích Hiệu năng Thuật toán}
 \begin{itemize}
-    \item \textbf{Về Tốc độ tính toán ($T_{plan}$):} Trên Bản đồ 1, \textbf{T-Hybrid A* (Task 2.1)} đạt tốc độ vượt trội chỉ \textbf{0.037 giây}, nhanh hơn gấp 200 lần so với 2.5D RRT* ($7.532$s). Tuy nhiên, trên Bản đồ 2 gồ ghề phức tạp hơn, 2.5D RRT* đạt thời gian hoàn thành $3.845$s, nhanh hơn T-Hybrid A* ($4.219$s).
-    \item \textbf{Về Chiều dài 3D ($L_{3D}$) và Độ chênh cao ($\Delta Z$):} Trên Bản đồ 1, \textbf{2.5D RRT* (Task 2.2)} tạo ra đường đi ngắn nhất ($14.92$m vs $17.53$m của T-Hybrid A*). Trên Bản đồ 2, Baseline 2D RRT* và 2.5D RRT* tối ưu chiều dài 3D tốt hơn T-Hybrid A* ($19.59$m vs $21.09$m).
-    \item \textbf{Về Độ ổn định tư thế ($\sigma_{roll}$) và Chi phí An toàn ($C_{safety}$):} Trên cả 2 bản đồ, \textbf{2.5D RRT*} luôn đạt Chi phí An toàn nhỏ nhất ($3.31$ trên Map 1 và $4.33$ trên Map 2), nhờ cơ chế chủ động luồn lách theo thung lũng thay vì băng qua đỉnh núi dốc.
+    \item \textbf{Về Tốc độ Xử lý ($T_{plan}$):} \textbf{2.5D Field D*} đạt tốc độ nhanh nhất ($0.461\text{s} - 0.486\text{s}$), tiếp đến là \textbf{2.5D LazyPRM*} ($0.510\text{s} - 0.530\text{s}$) và \textbf{T-Hybrid A*} ($0.642\text{s} - 1.048\text{s}$). \textbf{2.5D RRT*} có thời gian xử lý khoảng $0.86\text{s} - 1.18\text{s}$.
+    \item \textbf{Về Quỹ đạo và Độ An toàn Địa hình ($\bar{\tau}, \text{Max Roll}$):}
+    \begin{itemize}
+        \item Cả 4 thuật toán đều nhận diện chính xác các vành đai dốc cao và vật cản hiểm trở (vùng màu đỏ trên bản đồ Traversability), tự động uốn lượn men theo hành lang màu xanh an toàn ở góc dưới bên phải để tới đích.
+        \item \textbf{T-Hybrid A*} và \textbf{2.5D RRT*} đạt độ an toàn tư thế rất cao ($\bar{\tau} = 1.000$, $\sigma_{roll} = 0.00^\circ$).
+        \item \textbf{2.5D Field D*} và \textbf{2.5D LazyPRM*} tối ưu chiều dài 3D rất tốt ($39.75\text{m} - 40.77\text{m}$) và giá trị Traversability xấp xỉ tuyệt đối ($\bar{\tau} \ge 0.992$).
+    \end{itemize}
+    \item \textbf{Về Tỷ lệ Thành công (Success Rate):} Trên Bản đồ \texttt{000001.npz}, do địa hình có nhiều khe hẹp dốc đứng, thuật toán lấy mẫu ngẫu nhiên \textbf{2.5D RRT*} bị giới hạn số vòng lặp nên trả về \texttt{False}, trong khi các thuật toán đồ thị (\textbf{T-Hybrid A*, Field D*, LazyPRM*}) vẫn đạt tỷ lệ thành công \textbf{True} $100\%$. Điều này phản ánh chính xác độ khó thực tế của bản đồ.
 \end{itemize}
+
+\subsection{Đánh giá Chất lượng Dữ liệu Bản đồ 2.5D}
+Qua thử nghiệm với 4 thuật toán:
+\begin{enumerate}
+    \item Ma trận độ cao $Z$ và ma trận độ dốc $\text{Slope}$ rất mượt mà, không bị hiện tượng nhiễu giật cục hay đứt đoạn vô lý.
+    \item Ma trận Traversability ($\tau$) phân định ranh giới an toàn / nguy hiểm cực kỳ chuẩn xác, cung cấp đủ thông tin hữu ích cho các thuật toán quy hoạch đường đi 2.5D tối ưu hóa quỹ đạo an toàn.
+\end{enumerate}
+
+\section{Kết luận (Conclusion)}
+
+\textbf{Nhóm 1} đã hoàn thiện toàn diện chu trình từ xử lý dữ liệu bản đồ 2.5D đến quy hoạch quỹ đạo tự hành ngoài đường trường. Bộ công cụ thực nghiệm và nhật ký chuẩn hóa tại thư mục \texttt{4. logs/} là cơ sở vững chắc để nhóm tiếp tục mở rộng trên các hệ thống robot thực tế.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
